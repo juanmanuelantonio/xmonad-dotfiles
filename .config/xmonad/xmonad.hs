@@ -15,6 +15,7 @@ import XMonad.Layout.ThreeColumns
 
 import XMonad.Hooks.EwmhDesktops
 
+import XMonad.Util.SpawnOnce ( spawnOnce )
 
 main :: IO ()
 main = xmonad
@@ -24,9 +25,10 @@ main = xmonad
      $ myConfig
 
 myConfig = def
-    { modMask    = mod4Mask      -- Rebind Mod to the Super key
-    , layoutHook = myLayout      -- Use custom layouts
-    , manageHook = myManageHook  -- Match on certain windows
+    { modMask       = mod4Mask      	-- Rebind Mod to the Super key
+    , layoutHook    = myLayout      	-- Use custom layouts
+    , startupHook   = myStartupHook     -- Use custom layouts
+    , manageHook    = myManageHook  	-- Match on certain windows
     }
   `additionalKeysP`
     [ ("M-S-z",           spawn   "xscreensaver-command -lock")
@@ -34,6 +36,18 @@ myConfig = def
     , ("M-C-s",           unGrab  *> spawn "scrot -s"         )
     , ("M-f"  ,           spawn   "firefox"                   )
     ]
+
+
+-- By default, do nothing.
+myStartupHook = do
+  --spawn "xsetroot -cursor_name left_ptr"
+  --spawn "exec ~/bin/lock.sh"
+  spawnOnce "feh --bg-scale ~/.config/wallpapers/cthulhu_draw.jpg"
+  spawnOnce "picom"
+  --spawnOnce "greenclip daemon"
+  --spawnOnce "dunst"
+
+
 
 myManageHook :: ManageHook
 myManageHook = composeAll
