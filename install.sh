@@ -6,71 +6,67 @@ function pause(){
    read -p "$*"
 }
 
-echo "Welcome! you will tungurize your desktop"
-pause 'Press [Enter] key to continue...'
-
-working_path=$(pwd)/
+pause 'Welcome! you will tungurize your desktop --> press [Enter] key to continue...'
+working_path=$(pwd)
+user=$(whoami)
 
 # does full system update
-echo "FIRST! Perform a system update..."
-pause 'Press [Enter] key to continue...'
+echo "Hello $user"
+pause 'FIRST! Perform a system update --> press [Enter] key to continue...'
 sudo pacman --noconfirm -Syu
 
 echo "###########################################################################"
 echo "Ok, now we are ready to tungurize...."
 echo "###########################################################################"
 
+#Temporal dir creation
+mkdir -p ~/.tmp 
+pause 'We need an AUR helper. Verifying paru or intall... --> press [Enter] key to continue...'
+if ! command -v paru &> /dev/null
+then
+    echo "It seems that you don't have paru installed, I'll install that for you before continuing."
+	git clone https://aur.archlinux.org/paru-bin.git ~/.tmp/
+	(cd ~/.tmp && makepkg -si)
+fi
+
+pause 'We need Blackarch repositories --> press [Enter] key to continue...'
+cd ~/.tmp
+curl -O https://blackarch.org/strap.sh
+chmod +x strap.sh
+sudo ./strap.sh
+
 #echo "Updating hostname..."
 #echo "127.0.0.1    localhost" >> /etc/hostname
 #echo "::1          localhost" >> /etc/hostname
 #echo "127.0.0.1    bruenor.localhost bruenor" >> /etc/hostname
 
-echo "Installing packages"
-pause 'Press [Enter] key to continue...'
-# install base-devel if not installed
+pause 'Installing packages --> press [Enter] key to continue...'
 sudo pacman -S --noconfirm --needed base-devel wget git
-# Windows Tiling Manager
 sudo pacman -S --noconfirm --needed xorg xorg-server
 sudo pacman -S --noconfirm --needed lightdm 
-sudo pacman -S --noconfirm --needed lightdm-gtk-greeter
-sudo pacman -S --noconfirm --needed lightdm-gtk-greeter-settings
+#sudo pacman -S --noconfirm --needed lightdm-gtk-greeter
+#sudo pacman -S --noconfirm --needed lightdm-gtk-greeter-settings
+sudo pacman -S --noconfirm --needed lightdm-webkit2-greeter
+paru -Syu lightdm-webkit2-theme-glorious
+# Set default lightdm greeter to lightdm-webkit2-greeter
+sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
+# Set default lightdm-webkit2-greeter theme to Glorious
+sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = glorious #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+sudo sed -i 's/^debug_mode\s*=\s*\(.*\)/debug_mode = true #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+
+pause 'Enabling lightdm service --> press [Enter] key to continue...'
 sudo systemctl enable lightdm.service
 
-echo "We need an AUR helper. Installing paru..."
-pause 'Press [Enter] key to continue...'
-#create directory for repositories
-mkdir -p Desktop/repos
-cd !$
-# paru install to get AUR packages
-git clone https://aur.archlinux.org/paru-bin.git
-cd paur-bin
-makepkg -si
-
-echo "We need Blackarch repositories..."
-pause 'Press [Enter] key to continue...'
-# Install BlackArch repositories
-cd ~/Desktop/repos
-curl -O https://blackarch.org/strap.sh
-chmod +x strap.sh
-sudo ./strap.sh
-
-echo "Updating repositories..."
-pause 'Press [Enter] key to continue...'
-sudo pacman -Sy 
-
-echo "Installing xmonad and xmobar..."
-pause 'Press [Enter] key to continue...'
+cd $working_path
+pause 'Installing XMmonad and XMobar --> press [Enter] key to continue...'
 paru -S xmonad-git xmonad-contrib-git
 sudo pacman -S xmobar
 
 # Only for virtual machine
-echo "Installing vmware support..."
-pause 'Press [Enter] key to continue...'
+pause 'Installing vmware support --> press [Enter] key to continue...'
 sudo pacman -S --noconfirm --needed open-vm-tools
 sudo pacman -S --noconfirm --needed xf86-video-vmware xf86-input-vmmouse
-echo "Enabling VM tools deamon..."
-pause 'Press [Enter] key to continue...'
-systemctl enable vmtoolsd
+sudo stemctl enable vmtoolsd
 
 
 #Enable wifi
@@ -83,64 +79,61 @@ systemctl enable vmtoolsd
 # Enable at logon
 #systemctl enable gdm.service
 
-echo "Installing aditional applications..."
-pause 'Press [Enter] key to continue...'
+pause 'Installing aditional applications --> press [Enter] key to continue...'
 # Additional Software
-sudo pacman -S --noconfirm --needed kitty firefox zsh zsh-syntax-highlighting zsh-autosuggestions vim neovim nano lsd batcat rofi ranger mc feh mlocale zip unzip imagemagick
-paru -S --noconfirm --needed picom-git scrub
+sudo pacman -S --noconfirm --needed kitty firefox zsh zsh-syntax-highlighting zsh-autosuggestions vim neovim nano lsd bat rofi ranger mc feh mlocate zip unzip imagemagick neofetch mdcat
+paru -S --noconfirm --needed picom-git scrub zsh-theme-powerlevel10k-git
 
-sudo usermod --shell /bin/zsh tungur
+git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1
+
+
+pause 'Setting ZSH as user & root shell --> press [Enter] key to continue...'
+sudo usermod --shell /bin/zsh $user
 sudo usermod --shell /bin/zsh root
 
-#-sudo pluginds
+pause 'Install zsh SUDO plugin --> press [Enter] key to continue...'
 sudo mkdir -p /usr/share/zsh-sudo
-cd !$
+cd /usr/share/zsh-sudo/
 sudo wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
 
-#-fzf
-cd ~
-cd repos
+pause 'Install FZF, you will user ctrl+r and ctrl+t for fun and profit!! --> press [Enter] key to continue...'
+cd ~/.tmp
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install
 
-# TODO DO: install fzf for root
-#nordic-wallpapers + chutulu
-#picom-git
-#-powerlevel-10k
+pause 'Coping .config files --> press [Enter] key to continue...'
+mkdir -p ~/.config
+cp -rf $working_path/.config/* ~/.config/
+cp -f $working_path/.zshrc ~/.zshrc
 
-echo "Coping .config files..."
-pause 'Press [Enter] key to continue...'
-cp -r $working_path/.config/* ~/.config/*
+pause 'Font instalation --> press [Enter] key to continue...'
 
-echo "Font instalation..."
-pause 'Press [Enter] key to continue...'
-# install fonts
-#wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
-#wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Hack.zip
-#wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Iosevka.zip
-#wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Meslo.zip
-#wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip
-#wget https://use.fontawesome.com/releases/v6.1.1/fontawesome-free-6.1.1-desktop.zip
-
-echo "Creating fonts dirs..."  
-TTF_FONT_DIR="/user/local/share/fonts/ttf/"
+echo "Creating TTF and OTF fonts dirs..."  
+TTF_FONT_DIR="/usr/local/share/fonts/ttf/"
 if [ ! -d "$TTF_FONT_DIR" ]; then
-  sudo mkdir -p /user/local/share/fonts/ttf/
+  sudo mkdir -p /usr/local/share/fonts/ttf/
 fi
 
-OTF_FONT_DIR="/user/local/share/fonts/otf/"
+OTF_FONT_DIR="/usr/local/share/fonts/otf/"
 if [ ! -d "$OTF_FONT_DIR" ]; then
-  sudo mkdir -p /user/local/share/fonts/otf/
+  sudo mkdir -p /usr/local/share/fonts/otf/
 fi
 
 echo "Installing fonts dirs..."  
-sudo cp -r $working_path/fonts/ttf/* /user/local/share/fonts/ttf/*
-sudo cp -r $working_path/fonts/otf/* /user/local/share/fonts/otf/*
+sudo cp -r $working_path/fonts/ttf/* /usr/local/share/fonts/ttf/
+sudo cp -r $working_path/fonts/otf/* /usr/local/share/fonts/otf/
 echo "Updating fonts cache..."
 fc-cache -f
 
-#TODO: ln ECUAL ROOT USER
+#TODO: equal ROOT USER
+pause 'Configuring root console --> press [Enter] key to continue...'
+sudo ln -s -f /home/$user/.zshrc /root/.zshrc
+sudo ln -s -f /home/$user/.p10k.zsh /root/.p10k.zsh
+sudo git clone --depth 1 https://github.com/junegunn/fzf.git /root/.fzf
+sudo /root/.fzf/install
 
 echo "###########################################################################"
 echo "Ok, all stuff done, please reeboot the system"
 echo "###########################################################################"
+pause 'Press [Enter] key to reboot'
+sudo reboot

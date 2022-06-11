@@ -33,6 +33,7 @@ myConfig = def
   `additionalKeysP`
     [ ("M-S-z",           spawn   "xscreensaver-command -lock")
     , ("M-<Return>",      spawn   "kitty"                     )
+    , ("M-d",             spawn   "~/.config/rofi/launchers/misc/launcher.sh")
     , ("M-C-s",           unGrab  *> spawn "scrot -s"         )
     , ("M-f"  ,           spawn   "firefox"                   )
     ]
@@ -40,13 +41,8 @@ myConfig = def
 
 -- By default, do nothing.
 myStartupHook = do
-  --spawn "xsetroot -cursor_name left_ptr"
-  --spawn "exec ~/bin/lock.sh"
   spawnOnce "feh --bg-scale ~/.config/wallpapers/cthulhu_draw.jpg"
   spawnOnce "picom"
-  --spawnOnce "greenclip daemon"
-  --spawnOnce "dunst"
-
 
 
 myManageHook :: ManageHook
