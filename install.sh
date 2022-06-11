@@ -66,7 +66,7 @@ sudo pacman -S xmobar
 pause 'Installing vmware support --> press [Enter] key to continue...'
 sudo pacman -S --noconfirm --needed open-vm-tools
 sudo pacman -S --noconfirm --needed xf86-video-vmware xf86-input-vmmouse
-sudo stemctl enable vmtoolsd
+sudo systemctl enable vmtoolsd
 
 
 #Enable wifi
@@ -105,6 +105,8 @@ pause 'Coping .config files --> press [Enter] key to continue...'
 mkdir -p ~/.config
 cp -rf $working_path/.config/* ~/.config/
 cp -f $working_path/.zshrc ~/.zshrc
+cp -f $working_path/.p10k.zsh ~/.p10k.zsh
+
 
 pause 'Font instalation --> press [Enter] key to continue...'
 
