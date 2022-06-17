@@ -14,36 +14,85 @@ import XMonad.Layout.Magnifier
 import XMonad.Layout.ThreeColumns
 
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Util.SpawnOnce
 
-import XMonad.Util.SpawnOnce ( spawnOnce )
+ -- ColorScheme module (SET ONLY ONE!)
+      -- Possible choice are:
+      -- DoomOne
+      -- Dracula
+      -- GruvboxDark
+      -- MonokaiPro
+      -- Nord
+      -- OceanicNext
+      -- Palenight
+      -- SolarizedDark
+      -- SolarizedLight
+      -- TomorrowNight
+import Colors.DoomOne
 
-main :: IO ()
-main = xmonad
-     . ewmhFullscreen
-     . ewmh
-     . withEasySB (statusBarProp "xmobar" (pure myXmobarPP)) defToggleStrutsKey
-     $ myConfig
+myFont :: String
+myFont = "xft:SauceCodePro Nerd Font Mono:regular:size=9:antialias=true:hinting=true"
 
-myConfig = def
-    { modMask       = mod4Mask      	-- Rebind Mod to the Super key
-    , layoutHook    = myLayout      	-- Use custom layouts
-    , startupHook   = myStartupHook     -- Use custom layouts
-    , manageHook    = myManageHook  	-- Match on certain windows
-    }
-  `additionalKeysP`
-    [ ("M-S-z",           spawn   "xscreensaver-command -lock")
-    , ("M-<Return>",      spawn   "kitty"                     )
-    , ("M-d",             spawn   "~/.config/rofi/launchers/misc/launcher.sh")
-    , ("M-C-s",           unGrab  *> spawn "scrot -s"         )
-    , ("M-f"  ,           spawn   "firefox"                   )
-    ]
+myModMask :: KeyMask
+myModMask = mod4Mask        -- Sets modkey to super/windows key
+
+myTerminal :: String
+myTerminal = "kitty"    -- Sets default terminal
+
+myBrowser :: String
+myBrowser = "firefox"  -- Sets qutebrowser as browser
+
+myLauncher :: String
+myLauncher = "~/.config/rofi/launchers/misc/launcher.sh"  -- Sets custom rofi as laucher
+
+--myEmacs :: String
+--myEmacs :: String
+--myEmacs = "emacsclient -c -a 'emacs' "  -- Makes emacs keybindings easier to type
+
+--myEditor :: String
+--myEditor = "emacsclient -c -a 'emacs' "  -- Sets emacs as editor
+-- myEditor = myTerminal ++ " -e vim "    -- Sets vim as editor
+
+myBorderWidth :: Dimension
+myBorderWidth = 2           -- Sets border width for windows
+
+myNormColor :: String       -- Border color of normal windows
+myNormColor   = colorBack   -- This variable is imported from Colors.THEME
+
+myFocusColor :: String      -- Border color of focused windows
+myFocusColor  = color15     -- This variable is imported from Colors.THEME
+
+mySoundPlayer :: String
+mySoundPlayer = "ffplay -nodisp -autoexit " -- The program that will play system sounds
+
+--windowCount :: X (Maybe String)
+--windowCount = gets $ Just . show . length . W.integrate' . W.stack . W.workspace . W.current . windowset
 
 
--- By default, do nothing.
+  -- START_KEYS
+myKeys :: [(String, X ())]
+myKeys =
+    -- KB_GROUP Xmonad
+--        [ ("M-C-r", spawn "xmonad --recompile")       -- Recompiles xmonad
+--        , ("M-S-r", spawn "xmonad --restart")         -- Restarts xmonad
+--        , ("M-S-q", sequence_ [spawn (mySoundPlayer ++ shutdownSound)
+--                              , io exitSuccess]) -- Quits xmonad
+
+    -- KB_GROUP Get Help
+ --       , ("M-S-/", spawn "~/.xmonad/xmonad_keys.sh") -- Get list of keybindings
+
+        [ ("M-S-z",           spawn   "xscreensaver-command -lock"               )
+        , ("M-<Return>",      spawn   myTerminal                                 )
+        , ("M-d",             spawn   myLauncher                                 )
+        , ("M-C-s",           unGrab  *> spawn "scrot -s"                        )
+        , ("M-f"  ,           spawn   myBrowser                                  )
+        ]
+
+
 myStartupHook = do
   spawnOnce "feh --bg-scale ~/.config/wallpapers/cthulhu_draw.jpg"
   spawnOnce "picom"
-
+  setWMName "LG3D"
 
 myManageHook :: ManageHook
 myManageHook = composeAll
@@ -58,6 +107,17 @@ myLayout = tiled ||| Mirror tiled ||| Full ||| threeCol
     nmaster  = 1      -- Default number of windows in the master pane
     ratio    = 1/2    -- Default proportion of screen occupied by master pane
     delta    = 3/100  -- Percent of screen to increment by when resizing panes
+
+
+
+-- myWorkspaces = [" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 ", " 9 "]
+myWorkspaces = [" dev ", " www ", " sys ", " doc ", " vbox ", " chat ", " mus ", " vid ", " gfx "]
+
+myWorkspaceIndices = M.fromList $ zipWith (,) myWorkspaces [1..] -- (,) == \x y -> (x,y)
+
+clickable ws = "<action=xdotool key super+"++show i++">"++ws++"</action>"
+    where i = fromJust $ M.lookup ws myWorkspaceIndices
+
 
 myXmobarPP :: PP
 myXmobarPP = def
@@ -86,3 +146,24 @@ myXmobarPP = def
     yellow   = xmobarColor "#f1fa8c" ""
     red      = xmobarColor "#ff5555" ""
     lowWhite = xmobarColor "#bbbbbb" ""
+
+
+main :: IO ()
+main = xmonad
+     . ewmhFullscreen
+     . ewmh
+     . withEasySB (statusBarProp "xmobar" (pure myXmobarPP)) defToggleStrutsKey
+     $ myConfig
+
+myConfig = def
+    { modMask            = myModMask         -- Rebind Mod to the Super key
+    , terminal           = myTerminal
+    , borderWidth        = myBorderWidth
+    , workspaces         = myWorkspaces
+    , normalBorderColor  = myNormColor
+    , layoutHook         = myLayout          -- Use custom layouts
+    , startupHook        = myStartupHook     -- Use custom layouts
+    , manageHook         = myManageHook      -- Match on certain windows
+    , focusedBorderColor = myFocusColor
+    }
+  `additionalKeysP` myKeys
