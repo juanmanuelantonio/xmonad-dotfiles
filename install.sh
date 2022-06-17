@@ -54,6 +54,9 @@ sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-web
 sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = glorious #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
 sudo sed -i 's/^debug_mode\s*=\s*\(.*\)/debug_mode = true #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
 
+# add this to /etc/lightdm/lightdm.conf (under [Seat: *])
+# greeter-session=lightdm-webkit2-greeter
+
 pause 'Enabling lightdm service --> press [Enter] key to continue...'
 sudo systemctl enable lightdm.service
 
