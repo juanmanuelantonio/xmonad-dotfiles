@@ -61,16 +61,18 @@ pause 'Enabling lightdm service --> press [Enter] key to continue...'
 sudo systemctl enable lightdm.service
 
 cd $working_path
-pause 'Installing XMmonad and XMobar --> press [Enter] key to continue...'
-paru -S xmonad-git xmonad-contrib-git
-sudo pacman -S xmobar
+#pause 'Installing XMmonad and XMobar --> press [Enter] key to continue...'
+#paru -S xmonad-git xmonad-contrib-git
+#sudo pacman -S xmobar
+
+pause 'Installing Qtile --> press [Enter] key to continue...'
+sudo pacman -S qtile
 
 # Only for virtual machine
 pause 'Installing vmware support --> press [Enter] key to continue...'
 sudo pacman -S --noconfirm --needed open-vm-tools
 sudo pacman -S --noconfirm --needed xf86-video-vmware xf86-input-vmmouse
 sudo systemctl enable vmtoolsd
-
 
 #Enable wifi
 #sudo systemctl enable wpa_supplicant.service
@@ -88,7 +90,6 @@ sudo pacman -S --noconfirm --needed kitty firefox zsh zsh-syntax-highlighting zs
 paru -S --noconfirm --needed picom-git scrub zsh-theme-powerlevel10k-git
 
 git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1
-
 
 pause 'Setting ZSH as user & root shell --> press [Enter] key to continue...'
 sudo usermod --shell /bin/zsh $user
@@ -110,15 +111,12 @@ cp -rf $working_path/.config/* ~/.config/
 cp -f $working_path/.zshrc ~/.zshrc
 cp -f $working_path/.p10k.zsh ~/.p10k.zsh
 
-
 pause 'Font instalation --> press [Enter] key to continue...'
-
 echo "Creating TTF and OTF fonts dirs..."  
 TTF_FONT_DIR="/usr/local/share/fonts/ttf/"
 if [ ! -d "$TTF_FONT_DIR" ]; then
   sudo mkdir -p /usr/local/share/fonts/ttf/
 fi
-
 OTF_FONT_DIR="/usr/local/share/fonts/otf/"
 if [ ! -d "$OTF_FONT_DIR" ]; then
   sudo mkdir -p /usr/local/share/fonts/otf/
